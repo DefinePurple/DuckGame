@@ -1,0 +1,9 @@
+lastUpgrade=00939
+proj.pluginVersion=0.9.39a
+proj.AppId=539926565381
+and.BundleId=com.GameSpooks.GoogleSignInV2
+proj.classDir=Assets
+proj.ConstantsClassName=GoogleData
+and.ResourceData=%3c%3fxml+version%3d%221.0%22+encoding%3d%22utf-8%22%3f%3e%0d%0a%3c%21--%0d%0aGoogle+Play+game+services+IDs.%0d%0aSave+this+file+as+res%2fvalues%2fgames-ids.xml+in+your+project.%0d%0a--%3e%0d%0a%3cresources%3e%0d%0a++%3cstring+name%3d%22app_id%22%3e539926565381%3c%2fstring%3e%0d%0a++%3cstring+name%3d%22package_name%22%3ecom.GameSpooks.GoogleSignInV2%3c%2fstring%3e%0d%0a++%3cstring+name%3d%22achievement_test%22%3eCgkIhaSGsdsPEAIQAg%3c%2fstring%3e%0d%0a%3c%2fresources%3e%0d
+and.ClientId=539926565381-b1acpi08vfvflm8pk2v4vu1d93o4qt2m.apps.googleusercontent.com
+android.SetupDone=true
