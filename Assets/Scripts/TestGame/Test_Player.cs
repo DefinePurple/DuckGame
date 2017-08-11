@@ -12,6 +12,9 @@ public class Test_Player : MonoBehaviour {
         return peerId;
     }
     private bool isPlayer, alive;
+    public bool CheckIsPlayer() {
+        return isPlayer;
+    }
 
     public void PlayerSetup(string _username, bool _isPlayer, int _peerId ) {
         username.text = _username + " " + _peerId;

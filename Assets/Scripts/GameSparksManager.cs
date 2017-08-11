@@ -105,6 +105,7 @@ public class GameSparksManager : MonoBehaviour {
             });
     }
 
+    #region Google
     public void GoogleSignIn(GoogleCallback _googlecallback) {
         PlayGamesPlatform.Instance.Authenticate((success) => {
             if (success) {
@@ -117,14 +118,41 @@ public class GameSparksManager : MonoBehaviour {
         });
     }
 
+    public void GameSparksGooglePlus(AuthCallback _authcallback) {
+        new GooglePlusConnectRequest()
+            .SetCode(PlayGamesPlatform.Instance.GetServerAuthCode())
+            .SetSyncDisplayName(true)
+            .Send((response) => {
+                _authcallback(response);
+            });
+    }
+
+    public void GameSparksGooglePlay(AuthCallback _authcallback) {
+        PlayGamesLocalUser user = (PlayGamesLocalUser)Social.localUser;
+        new GooglePlayConnectRequest()
+            .SetCode(PlayGamesPlatform.Instance.GetServerAuthCode())
+            .SetRedirectUri("https://www.gamesparks.com/oauth2callback")
+            .SetDisplayName(user.userName)
+            .SetSyncDisplayName(true)
+            .Send((response) => {
+                _authcallback(response);
+            });
+    }
+    #endregion
+
+    #region Facebook
     public void FacebookSignIn(AuthCallback _authcallback) {
+        //Setup facebook permissions
         List<string> permissions = new List<string>();
         permissions.Add("public_profile");
 
+        //Login in using the set permissions
         FB.LogInWithReadPermissions(permissions, (result) => {
+            //If there is an error, print it
             if (result.Error != null)
                 Debug.Log(result.Error.ToString());
             else {
+                //Otherwise, if FB is logged in, Try to connect with GameSparks
                 if (FB.IsLoggedIn) {
                     Debug.Log("FB | Login Success");
                     GameSparksToFacebook(_authcallback);
@@ -148,19 +176,7 @@ public class GameSparksManager : MonoBehaviour {
                 }
             });
     }
-
-    public void GameSparksGoogle(AuthCallback _authcallback) {
-        new GooglePlusConnectRequest()
-            .SetCode(PlayGamesPlatform.Instance.GetServerAuthCode())
-            .SetSyncDisplayName(true)
-            .Send((response) => {
-                if (!response.HasErrors) {
-                    _authcallback(response);
-                } else {
-                    Debug.LogWarning(response.Errors.JSON);//if we have errors, print them out
-                }
-            });
-    }
+    #endregion
     #endregion
 
     #region Matchmaking
@@ -208,7 +224,7 @@ public class GameSparksManager : MonoBehaviour {
     public void ShootTest(int peerId) {
         using (RTData data = RTData.Get()) {  // we put a using statement here so that we can dispose of the RTData objects once the packet is sent
             data.SetInt(1, peerId);
-            GameSparksManager.Instance().GetRTSession().SendData(1, GameSparks.RT.GameSparksRT.DeliveryIntent.UNRELIABLE, data, new int[] { peerId });// send the data
+            GameSparksManager.Instance().GetRTSession().SendData(1, GameSparks.RT.GameSparksRT.DeliveryIntent.UNRELIABLE, data);// send the data
         }
     }
 
@@ -219,6 +235,7 @@ public class GameSparksManager : MonoBehaviour {
         }
     }
 
+    //Used to start the next round. Just reloads the screen
     public void StartNewRound() {
         SceneManager.LoadScene("TestFFA");
     }
@@ -294,13 +311,6 @@ public class GameSparksManager : MonoBehaviour {
     }
 
     private void OnPacketReceived(RTPacket _packet) {
-
-        //        Debug.LogWarning(_packet.ToString());
-
-        //		if (GameController.Instance () != null) {
-        //			GameController.Instance().PacketReceived(_packet.PacketSize);
-        //		}
-
         switch (_packet.OpCode) {
             case 1:
                 GameController.Instance().ReceiveShot((int)_packet.Data.GetInt(1), _packet.Sender);
@@ -309,23 +319,6 @@ public class GameSparksManager : MonoBehaviour {
             case 2:
                 GameController.Instance().ReceiveDeath(_packet.Sender);
                 break;
-
-            // REGISTER NETWORK INFO //
-            case 100:
-                Debug.Log("GSM| Loading Level...");
-                //SceneManager.LoadScene("GameScene");
-                break;
-
-            case 101:
-                Debug.Log("Loading Lobby");
-                break;
-
-                //case 102:
-                //    GameController.Instance().CalculateTimeDelta(_packet);
-                //    break;
-                //case 103:
-                //    GameController.Instance().SyncClock(_packet);
-                //    break;
         }
     }
 }

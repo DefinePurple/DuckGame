@@ -9,7 +9,7 @@ using GooglePlayGames;
 
 public class IOManager : MonoBehaviour {
     public InputField username, password;
-    public Button authButton, regButton, googleButton, facebookButton;
+    public Button authButton, regButton, googlePlusButton, googlePlayButton, facebookButton;
     public Text details;
 
     private void Start() {
@@ -24,9 +24,14 @@ public class IOManager : MonoBehaviour {
             RegReq();
         });
 
-        googleButton.onClick.AddListener(() => {
-            UpdateText("Signing in with Google...\n");
-            GoogleStart();
+        googlePlusButton.onClick.AddListener(() => {
+            UpdateText("Signing in with Google+...\n");
+            GooglePlusStart();
+        });
+
+        googlePlayButton.onClick.AddListener(() => {
+            UpdateText("Signing in with Google Play...\n");
+            GooglePlayStart();
         });
 
         facebookButton.onClick.AddListener(() => {
@@ -36,20 +41,13 @@ public class IOManager : MonoBehaviour {
         #endregion
     }
 
+    #region GameSparks
     private void AuthReq() {
         GameSparksManager.Instance().AuthenticateUser(username.text, password.text, OnAuthentication);
     }
 
     private void RegReq() {
         GameSparksManager.Instance().RegisterUser(username.text, password.text, OnRegistration);
-    }
-
-    private void GoogleStart() {
-        GameSparksManager.Instance().GoogleSignIn(OnGoogleSignIn);
-    }
-
-    private void FacebookStart() {
-        GameSparksManager.Instance().FacebookSignIn(OnFacebook);
     }
 
     private void OnRegistration(RegistrationResponse _resp) {
@@ -66,22 +64,44 @@ public class IOManager : MonoBehaviour {
         } else if (_resp.HasErrors)
             UpdateText("GS Error Autenticating\n");
     }
+    #endregion
 
-    private void OnGoogleSignIn(bool success) {
-        UpdateText(success.ToString() + "\n");
+    #region Google
+    private void GooglePlusStart() {
+        GameSparksManager.Instance().GoogleSignIn(OnGooglePlusSignIn);
+    }
+
+    private void GooglePlayStart() {
+        GameSparksManager.Instance().GoogleSignIn(OnGooglePlaySignIn);
+    }
+
+    private void OnGooglePlusSignIn(bool success) {
         if (success) {
-            GameSparksManager.Instance().GameSparksGoogle(OnGameSparksGoogle);
+            GameSparksManager.Instance().GameSparksGooglePlus(OnGameSparksGoogle);
+        }
+    }
+
+    private void OnGooglePlaySignIn(bool success) {
+        if (success) {
+            GameSparksManager.Instance().GameSparksGooglePlay(OnGameSparksGoogle);
         }
     }
 
     private void OnGameSparksGoogle(AuthenticationResponse _resp) {
         if (!_resp.HasErrors) {
-            UpdateText("Sucessfully linked GS & GPS\n");
+            UpdateText("Sucessfully linked GS with Google\n");
             GoToMain();
         } else if (_resp.HasErrors) {
-            UpdateText("Failed to link GS & GPS\n");
+            UpdateText("Failed to link GS with Google\n");
+            UpdateText(_resp.Errors.JSON.ToString());
             PlayGamesPlatform.Instance.SignOut();
         }
+    }
+    #endregion
+
+    #region Facebook
+    private void FacebookStart() {
+        GameSparksManager.Instance().FacebookSignIn(OnFacebook);
     }
 
     private void OnFacebook(AuthenticationResponse _resp) {
@@ -95,6 +115,7 @@ public class IOManager : MonoBehaviour {
             FB.LogOut();
         }
     }
+    #endregion
 
     private void GoToMain() {
         SceneManager.LoadScene("Menu");
